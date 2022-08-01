@@ -1,0 +1,839 @@
+package com.zhanzhanhhhhcamera;
+
+import android.app.Application;
+import android.util.DisplayMetrics;
+
+import com.common.util.DataUtils;
+import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiskCache;
+import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
+import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
+import com.nostra13.universalimageloader.utils.StorageUtils;
+
+/**
+ * Created by sky on 2015/7/6.
+ */
+public class App extends Application {
+
+    protected static App       mInstance;
+    private DisplayMetrics     displayMetrics = null;
+
+    public App(){
+        mInstance = this;
+    }
+
+    public static App getApp() {
+        if (mInstance != null && mInstance instanceof App) {
+            return (App) mInstance;
+        } else {
+            mInstance = new App();
+            mInstance.onCreate();
+            return (App) mInstance;
+        }
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        initImageLoader();
+        mInstance = this;
+    }
+
+
+    private void initImageLoader() {
+        DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
+                .cacheInMemory(false)
+                .imageScaleType(ImageScaleType.EXACTLY)
+                .cacheOnDisk(true)
+                .build();
+
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
+                .threadPriority(Thread.NORM_PRIORITY - 2)
+                .defaultDisplayImageOptions(defaultOptions)
+                .denyCacheImageMultipleSizesInMemory()
+                .diskCacheFileNameGenerator(new Md5FileNameGenerator())
+                .diskCache(new UnlimitedDiskCache(StorageUtils.getOwnCacheDirectory(this, AppConstants.APP_IMAGE)))
+                .diskCacheSize(100 * 1024 * 1024).tasksProcessingOrder(QueueProcessingType.LIFO)
+                .memoryCache(new LruMemoryCache(2 * 1024 * 1024)).memoryCacheSize(2 * 1024 * 1024)
+                .threadPoolSize(3)
+                .build();
+        ImageLoader.getInstance().init(config);
+    }
+
+
+    public float getScreenDensity() {
+        if (this.displayMetrics == null) {
+            setDisplayMetrics(getResources().getDisplayMetrics());
+        }
+        return this.displayMetrics.density;
+    }
+
+    public int getScreenHeight() {
+        if (this.displayMetrics == null) {
+            setDisplayMetrics(getResources().getDisplayMetrics());
+        }
+        return this.displayMetrics.heightPixels;
+    }
+
+    public int getScreenWidth() {
+        if (this.displayMetrics == null) {
+            setDisplayMetrics(getResources().getDisplayMetrics());
+        }
+        return this.displayMetrics.widthPixels;
+    }
+
+    public void setDisplayMetrics(DisplayMetrics DisplayMetrics) {
+        this.displayMetrics = DisplayMetrics;
+    }
+
+    public int dp2px(float f)
+    {
+        return (int)(0.5F + f * getScreenDensity());
+    }
+
+    public int px2dp(float pxValue) {
+        return (int) (pxValue / getScreenDensity() + 0.5f);
+    }
+
+    //获取应用的data/data/....File目录
+    public String getFilesDirPath() {
+        return getFilesDir().getAbsolutePath();
+    }
+
+    //获取应用的data/data/....Cache目录
+    public String getCacheDirPath() {
+        return getCacheDir().getAbsolutePath();
+    }
+
+
+
+}
+package com.stickercamera;
+
+import android.os.Environment;
+
+/**
+ * Created by sky on 2015/7/6.
+ */
+public class AppConstants {
+
+    public static final String APP_DIR                    = Environment.getExternalStorageDirectory() + "/StickerCamera";
+    public static final String APP_TEMP                   = APP_DIR + "/temp";
+    public static final String APP_IMAGE                  = APP_DIR + "/image";
+
+    public static final int    POST_TYPE_POI              = 1;
+    public static final int    POST_TYPE_TAG              = 0;
+    public static final int    POST_TYPE_DEFAULT		  = 0;
+
+
+    public static final float  DEFAULT_PIXEL              = 1242;                           //按iphone6设置
+    public static final String PARAM_MAX_SIZE             = "PARAM_MAX_SIZE";
+    public static final String PARAM_EDIT_TEXT            = "PARAM_EDIT_TEXT";
+    public static final int    ACTION_EDIT_LABEL          = 8080;
+    public static final int    ACTION_EDIT_LABEL_POI      = 9090;
+
+    public static final String FEED_INFO                  = "FEED_INFO";
+
+
+    public static final int REQUEST_CROP = 6709;
+    public static final int REQUEST_PICK = 9162;
+    public static final int RESULT_ERROR = 404;
+
+}
+package com.stickercamera;
+
+import android.app.Application;
+import android.util.DisplayMetrics;
+
+import com.common.util.DataUtils;
+import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiskCache;
+import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
+import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
+import com.nostra13.universalimageloader.utils.StorageUtils;
+
+/**
+ * Created by sky on 2015/7/6.
+ */
+public class App extends Application {
+
+    protected static App       mInstance;
+    private DisplayMetrics     displayMetrics = null;
+
+    public App(){
+        mInstance = this;
+    }
+
+    public static App getApp() {
+        if (mInstance != null && mInstance instanceof App) {
+            return (App) mInstance;
+        } else {
+            mInstance = new App();
+            mInstance.onCreate();
+            return (App) mInstance;
+        }
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        initImageLoader();
+        mInstance = this;
+    }
+
+
+    private void initImageLoader() {
+        DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
+                .cacheInMemory(false)
+                .imageScaleType(ImageScaleType.EXACTLY)
+                .cacheOnDisk(true)
+                .build();
+
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
+                .threadPriority(Thread.NORM_PRIORITY - 2)
+                .defaultDisplayImageOptions(defaultOptions)
+                .denyCacheImageMultipleSizesInMemory()
+                .diskCacheFileNameGenerator(new Md5FileNameGenerator())
+                .diskCache(new UnlimitedDiskCache(StorageUtils.getOwnCacheDirectory(this, AppConstants.APP_IMAGE)))
+                .diskCacheSize(100 * 1024 * 1024).tasksProcessingOrder(QueueProcessingType.LIFO)
+                .memoryCache(new LruMemoryCache(2 * 1024 * 1024)).memoryCacheSize(2 * 1024 * 1024)
+                .threadPoolSize(3)
+                .build();
+        ImageLoader.getInstance().init(config);
+    }
+
+
+    public float getScreenDensity() {
+        if (this.displayMetrics == null) {
+            setDisplayMetrics(getResources().getDisplayMetrics());
+        }
+        return this.displayMetrics.density;
+    }
+
+    public int getScreenHeight() {
+        if (this.displayMetrics == null) {
+            setDisplayMetrics(getResources().getDisplayMetrics());
+        }
+        return this.displayMetrics.heightPixels;
+    }
+
+    public int getScreenWidth() {
+        if (this.displayMetrics == null) {
+            setDisplayMetrics(getResources().getDisplayMetrics());
+        }
+        return this.displayMetrics.widthPixels;
+    }
+
+    public void setDisplayMetrics(DisplayMetrics DisplayMetrics) {
+        this.displayMetrics = DisplayMetrics;
+    }
+
+    public int dp2px(float f)
+    {
+        return (int)(0.5F + f * getScreenDensity());
+    }
+
+    public int px2dp(float pxValue) {
+        return (int) (pxValue / getScreenDensity() + 0.5f);
+    }
+
+    //获取应用的data/data/....File目录
+    public String getFilesDirPath() {
+        return getFilesDir().getAbsolutePath();
+    }
+
+    //获取应用的data/data/....Cache目录
+    public String getCacheDirPath() {
+        return getCacheDir().getAbsolutePath();
+    }
+
+
+
+}
+package com.stickercamera;
+
+import android.os.Environment;
+
+/**
+ * Created by sky on 2015/7/6.
+ */
+public class AppConstants {
+
+    public static final String APP_DIR                    = Environment.getExternalStorageDirectory() + "/StickerCamera";
+    public static final String APP_TEMP                   = APP_DIR + "/temp";
+    public static final String APP_IMAGE                  = APP_DIR + "/image";
+
+    public static final int    POST_TYPE_POI              = 1;
+    public static final int    POST_TYPE_TAG              = 0;
+    public static final int    POST_TYPE_DEFAULT		  = 0;
+
+
+    public static final float  DEFAULT_PIXEL              = 1242;                           //按iphone6设置
+    public static final String PARAM_MAX_SIZE             = "PARAM_MAX_SIZE";
+    public static final String PARAM_EDIT_TEXT            = "PARAM_EDIT_TEXT";
+    public static final int    ACTION_EDIT_LABEL          = 8080;
+    public static final int    ACTION_EDIT_LABEL_POI      = 9090;
+
+    public static final String FEED_INFO                  = "FEED_INFO";
+
+
+    public static final int REQUEST_CROP = 6709;
+    public static final int REQUEST_PICK = 9162;
+    public static final int RESULT_ERROR = 404;
+
+}
+package com.stickercamera.app.camera;
+
+import android.os.Bundle;
+
+import com.stickercamera.base.BaseActivity;
+
+
+public class CameraBaseActivity extends BaseActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        CameraManager.getInst().addActivity(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        CameraManager.getInst().removeActivity(this);
+    }
+}
+package com.stickercamera.app.camera;
+
+import android.os.Bundle;
+
+import com.stickercamera.base.BaseFragmentActivity;
+
+
+public class CameraBaseFragmentActivity extends BaseFragmentActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        CameraManager.getInst().addActivity(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        CameraManager.getInst().removeActivity(this);
+    }
+}
+package com.stickercamera.app.camera;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+
+import com.common.util.ImageUtils;
+import com.stickercamera.AppConstants;
+import com.stickercamera.app.camera.ui.CameraActivity;
+import com.stickercamera.app.camera.ui.CropPhotoActivity;
+import com.stickercamera.app.camera.ui.PhotoProcessActivity;
+import com.stickercamera.app.model.PhotoItem;
+
+import java.util.Stack;
+
+/**
+ * 相机管理类
+ * Created by sky on 15/7/6.
+ * Weibo: http://weibo.com/2030683111
+ * Email: 1132234509@qq.com
+ */
+public class CameraManager {
+
+    private static CameraManager mInstance;
+    private Stack<Activity> cameras = new Stack<Activity>();
+
+    public static CameraManager getInst() {
+        if (mInstance == null) {
+            synchronized (CameraManager.class) {
+                if (mInstance == null)
+                    mInstance = new CameraManager();
+            }
+        }
+        return mInstance;
+    }
+
+    //打开照相界面
+    public void openCamera(Context context) {
+        Intent intent = new Intent(context, CameraActivity.class);
+        context.startActivity(intent);
+    }
+
+    //判断图片是否需要裁剪
+    public void processPhotoItem(Activity activity, PhotoItem photo) {
+        Uri uri = photo.getImageUri().startsWith("file:") ? Uri.parse(photo
+                .getImageUri()) : Uri.parse("file://" + photo.getImageUri());
+        if (ImageUtils.isSquare(photo.getImageUri())) {
+            Intent newIntent = new Intent(activity, PhotoProcessActivity.class);
+            newIntent.setData(uri);
+            activity.startActivity(newIntent);
+        } else {
+            Intent i = new Intent(activity, CropPhotoActivity.class);
+            i.setData(uri);
+            //TODO稍后添加
+            activity.startActivityForResult(i, AppConstants.REQUEST_CROP);
+        }
+    }
+
+    public void close() {
+        for (Activity act : cameras) {
+            try {
+                act.finish();
+            } catch (Exception e) {
+
+            }
+        }
+        cameras.clear();
+    }
+
+    public void addActivity(Activity act) {
+        cameras.add(act);
+    }
+
+    public void removeActivity(Activity act) {
+        cameras.remove(act);
+    }
+
+
+
+}
+package com.stickercamera.app.camera;
+
+import com.stickercamera.app.camera.effect.FilterEffect;
+import com.stickercamera.app.camera.util.GPUImageFilterTools;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
+public class EffectService {
+
+    private static EffectService mInstance;
+
+    public static EffectService getInst() {
+        if (mInstance == null) {
+            synchronized (EffectService.class) {
+                if (mInstance == null)
+                    mInstance = new EffectService();
+            }
+        }
+        return mInstance;
+    }
+
+    private EffectService() {
+    }
+
+    public List<FilterEffect> getLocalFilters() {
+        List<FilterEffect> filters = new ArrayList<FilterEffect>();
+        filters.add(new FilterEffect("原始", GPUImageFilterTools.FilterType.NORMAL, 0));
+
+        filters.add(new FilterEffect("暧昧", GPUImageFilterTools.FilterType.ACV_AIMEI, 0));
+        filters.add(new FilterEffect("淡蓝", GPUImageFilterTools.FilterType.ACV_DANLAN, 0));
+        filters.add(new FilterEffect("蛋黄", GPUImageFilterTools.FilterType.ACV_DANHUANG, 0));
+        filters.add(new FilterEffect("复古", GPUImageFilterTools.FilterType.ACV_FUGU, 0));
+        filters.add(new FilterEffect("高冷", GPUImageFilterTools.FilterType.ACV_GAOLENG, 0));
+        filters.add(new FilterEffect("怀旧", GPUImageFilterTools.FilterType.ACV_HUAIJIU, 0));
+        filters.add(new FilterEffect("胶片", GPUImageFilterTools.FilterType.ACV_JIAOPIAN, 0));
+        filters.add(new FilterEffect("可爱", GPUImageFilterTools.FilterType.ACV_KEAI, 0));
+        filters.add(new FilterEffect("落寞", GPUImageFilterTools.FilterType.ACV_LOMO, 0));
+        filters.add(new FilterEffect("加强", GPUImageFilterTools.FilterType.ACV_MORENJIAQIANG, 0));
+        filters.add(new FilterEffect("暖心", GPUImageFilterTools.FilterType.ACV_NUANXIN, 0));
+        filters.add(new FilterEffect("清新", GPUImageFilterTools.FilterType.ACV_QINGXIN, 0));
+        filters.add(new FilterEffect("日系", GPUImageFilterTools.FilterType.ACV_RIXI, 0));
+        filters.add(new FilterEffect("温暖", GPUImageFilterTools.FilterType.ACV_WENNUAN, 0));
+
+        return filters;
+    }
+
+}
+package com.stickercamera.base;
+
+import android.app.Activity;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
+
+import com.stickercamera.base.util.DialogHelper;
+
+
+public class ActivityHelper {
+    final static String TAG = ActivityHelper.class.getSimpleName();
+
+    /**
+     * 对应的Activity
+     */
+    private Activity mActivity;
+
+
+    /**
+     * 对话框帮助类
+     */
+    private DialogHelper mDialogHelper;
+
+    public ActivityHelper(Activity activity) {
+        mActivity = activity;
+        mDialogHelper = new DialogHelper(mActivity);
+    }
+
+    public void finish() {
+        mDialogHelper.dismissProgressDialog();
+    }
+
+    /**
+     * 弹对话框
+     *
+     * @param title            标题
+     * @param msg              消息
+     * @param positive         确定
+     * @param positiveListener 确定回调
+     * @param negative         否定
+     * @param negativeListener 否定回调
+     */
+    public void alert(String title, String msg, String positive,
+                      DialogInterface.OnClickListener positiveListener, String negative,
+                      DialogInterface.OnClickListener negativeListener) {
+        mDialogHelper.alert(title, msg, positive, positiveListener, negative, negativeListener);
+    }
+
+
+    /**
+     * 弹对话框
+     *
+     * @param title                    标题
+     * @param msg                      消息
+     * @param positive                 确定
+     * @param positiveListener         确定回调
+     * @param negative                 否定
+     * @param negativeListener         否定回调
+     * @param isCanceledOnTouchOutside 外部是否可点取消
+     */
+    public void alert(String title, String msg, String positive,
+                      DialogInterface.OnClickListener positiveListener, String negative,
+                      DialogInterface.OnClickListener negativeListener,
+                      Boolean isCanceledOnTouchOutside) {
+        mDialogHelper.alert(title, msg, positive, positiveListener, negative, negativeListener,
+                isCanceledOnTouchOutside);
+    }
+
+    /**
+     * TOAST
+     *
+     * @param msg    消息
+     * @param period 时长
+     */
+    public void toast(String msg, int period) {
+        mDialogHelper.toast(msg, period);
+    }
+
+    /**
+     * 显示进度对话框
+     *
+     * @param msg 消息
+     */
+    public void showProgressDialog(String msg) {
+        mDialogHelper.showProgressDialog(msg);
+    }
+
+    /**
+     * 显示可取消的进度对话框
+     *
+     * @param msg 消息
+     */
+    public void showProgressDialog(final String msg, final boolean cancelable,
+                                   final OnCancelListener cancelListener) {
+        mDialogHelper.showProgressDialog(msg, cancelable, cancelListener, true);
+    }
+
+    public void dismissProgressDialog() {
+        mDialogHelper.dismissProgressDialog();
+    }
+
+}
+package com.stickercamera.base;
+
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
+
+public interface ActivityResponsable {
+    /**
+     * 弹对话框
+     * 
+     * @param title
+     *            标题
+     * @param msg
+     *            消息
+     * @param positive
+     *            确定
+     * @param positiveListener
+     *            确定回调
+     * @param negative
+     *            否定
+     * @param negativeListener
+     *            否定回调
+     */
+    public void alert(final String title, final String msg, final String positive,
+                      final DialogInterface.OnClickListener positiveListener,
+                      final String negative, final DialogInterface.OnClickListener negativeListener);
+
+    /**
+     * 弹对话框
+     * 
+     * @param title
+     *            标题
+     * @param msg
+     *            消息
+     * @param positive
+     *            确定
+     * @param positiveListener
+     *            确定回调
+     * @param negative
+     *            否定
+     * @param negativeListener
+     *            否定回调
+     * @param isCanceledOnTouchOutside
+     *            是否外部点击取消
+     */
+    public void alert(final String title, final String msg, final String positive,
+                      final DialogInterface.OnClickListener positiveListener,
+                      final String negative,
+                      final DialogInterface.OnClickListener negativeListener,
+                      Boolean isCanceledOnTouchOutside);
+
+    /**
+     * TOAST
+     * 
+     * @param msg
+     *            消息
+     * @param period
+     *            时长
+     */
+    public void toast(final String msg, final int period);
+
+    /**
+     * 显示进度对话框
+     * 
+     * @param msg
+     *            消息
+     */
+    public void showProgressDialog(final String msg);
+
+    /**
+     * 显示可取消的进度对话框
+     * 
+     * @param msg
+     *            消息
+     */
+    public void showProgressDialog(final String msg, final boolean cancelable,
+                                   final OnCancelListener cancelListener);
+
+    /**
+     * 取消进度对话框
+     * 
+     */
+    public void dismissProgressDialog();
+
+}
+package com.stickercamera.base;
+
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.content.DialogInterface;
+import android.os.Build;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.util.TypedValue;
+import android.view.Menu;
+import android.view.View;
+import android.view.WindowManager;
+
+import com.github.skykai.stickercamera.R;
+import com.customview.CommonTitleBar;
+import com.readystatesoftware.systembartint.SystemBarTintManager;
+
+import butterknife.ButterKnife;
+
+/**
+ * Created by sky on 15/7/6.
+ */
+public class BaseActivity extends AppCompatActivity implements ActivityResponsable {
+
+    protected CommonTitleBar titleBar;
+    //Activity辅助类
+    private ActivityHelper           mActivityHelper;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mActivityHelper = new ActivityHelper(this);
+        initWindow();
+
+    }
+
+    @TargetApi(19)
+    private void initWindow() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+            SystemBarTintManager tintManager = new SystemBarTintManager(this);
+            tintManager.setStatusBarTintColor(getStatusBarColor());
+            tintManager.setStatusBarTintEnabled(true);
+        }
+    }
+
+    public int getStatusBarColor() {
+        return getColorPrimary();
+    }
+
+    public int getColorPrimary() {
+        TypedValue typedValue = new TypedValue();
+        getTheme().resolveAttribute(R.attr.colorPrimary, typedValue, true);
+        return typedValue.data;
+    }
+
+    @Override
+    public void setContentView(int layoutResID) {
+        super.setContentView(layoutResID);
+        titleBar = (CommonTitleBar) findViewById(R.id.title_layout);
+        if (titleBar != null)
+            titleBar.setLeftBtnOnclickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    finish();
+                }
+            });
+    }
+
+    /**
+     * 弹对话框
+     *
+     * @param title
+     *            标题
+     * @param msg
+     *            消息
+     * @param positive
+     *            确定
+     * @param positiveListener
+     *            确定回调
+     * @param negative
+     *            否定
+     * @param negativeListener
+     *            否定回调
+     */
+    @Override
+    public void alert(String title, String msg, String positive,
+                      DialogInterface.OnClickListener positiveListener, String negative,
+                      DialogInterface.OnClickListener negativeListener) {
+        mActivityHelper.alert(title, msg, positive, positiveListener, negative, negativeListener);
+    }
+
+    /**
+     * 弹对话框
+     *
+     * @param title
+     *            标题
+     * @param msg
+     *            消息
+     * @param positive
+     *            确定
+     * @param positiveListener
+     *            确定回调
+     * @param negative
+     *            否定
+     * @param negativeListener
+     *            否定回调
+     * @param isCanceledOnTouchOutside
+     *            外部点是否可以取消对话框
+     */
+    @Override
+    public void alert(String title, String msg, String positive,
+                      DialogInterface.OnClickListener positiveListener, String negative,
+                      DialogInterface.OnClickListener negativeListener,
+                      Boolean isCanceledOnTouchOutside) {
+        mActivityHelper.alert(title, msg, positive, positiveListener, negative, negativeListener,
+                isCanceledOnTouchOutside);
+    }
+
+    /**
+     * TOAST
+     *
+     * @param msg
+     *            消息
+     * @param period
+     *            时长
+     */
+    @Override
+    public void toast(String msg, int period) {
+        mActivityHelper.toast(msg, period);
+    }
+
+    /**
+     * 显示进度对话框
+     *
+     * @param msg
+     *            消息
+     */
+    @Override
+    public void showProgressDialog(String msg) {
+        mActivityHelper.showProgressDialog(msg);
+    }
+
+    /**
+     * 显示可取消的进度对话框
+     *
+     * @param msg
+     *            消息
+     */
+    public void showProgressDialog(final String msg, final boolean cancelable,
+                                   final DialogInterface.OnCancelListener cancelListener) {
+        mActivityHelper.showProgressDialog(msg, cancelable, cancelListener);
+    }
+
+    @Override
+    public void dismissProgressDialog() {
+        mActivityHelper.dismissProgressDialog();
+    }
+}
+package com.stickercamera.base;
+
+import android.support.v4.app.FragmentActivity;
+import android.view.View;
+
+import com.customview.CommonTitleBar;
+import com.github.skykai.stickercamera.R;
+
+/**
+ * Created by sky on 15/7/6.
+ */
+public class BaseFragmentActivity extends FragmentActivity {
+
+    protected CommonTitleBar titleBar;
+
+    @Override
+    public void setContentView(int layoutResID) {
+        super.setContentView(layoutResID);
+        //titleBar = (CommonTitleBar) findViewById(R.id.title_layout);
+        if (titleBar != null)
+            titleBar.setLeftBtnOnclickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    finish();
+                }
+            });
+    }
+}
